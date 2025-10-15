@@ -551,8 +551,8 @@
             try {
                 localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
             } catch (e) {
-                console.error('Error guardando en localStorage', e);
-                alert('No se pudo guardar. El almacenamiento local puede estar lleno.');
+                //console.error('Error guardando en localStorage', e);
+                //alert('No se pudo guardar. El almacenamiento local puede estar lleno.');
             }
         }
         function loadFromLocalStorage() {
