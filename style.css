@@ -352,6 +352,44 @@
             padding: 0;
             line-height: 1;
         }
+        /* --- NUEVOS ESTILOS PARA EDICIÓN Y REFLEXIONES --- */
+
+/* Contenedor para los nuevos botones de "Cambiar Música" y "Añadir Imágenes" */
+.edit-controls {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-color);
+    text-align: center;
+}
+
+/* Estilo para los botones de edición. Sutiles y pequeños. */
+.edit-button {
+    background-image: var(--secondary-gradient);
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px -2px var(--shadow-color);
+}
+
+/* Escondemos los inputs de archivo, ya que los activamos con los botones */
+.hidden-input {
+    display: none;
+}
+
+/* Estilo para la caja que mostrará la reflexión */
+.reflection-box {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    min-height: 100px;
+    background-color: var(--task-bg-color);
+    border-radius: 12px;
+    border-left: 5px solid var(--primary-color);
+    font-style: italic;
+    color: var(--text-color);
+    opacity: 0.9;
+    transition: all 0.4s ease;
+}
 
 
         @media print{

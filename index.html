@@ -4,7 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Mi Película Mental</title>
-    <link rel="stylesheet" href="./style.css">
+    
+    <!-- Librería para las animaciones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+    <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
     <div class="bubbles-container"></div>
@@ -18,6 +21,7 @@
     </div>
 
     <main class="container" id="app">
+        <!-- PANTALLA DE BIENVENIDA -->
         <section id="welcome-screen" class="screen active">
             <div class="card" style="text-align:center">
                 <h1>¿Estás listo para crear tu película mental?</h1>
@@ -29,6 +33,7 @@
             </div>
         </section>
 
+        <!-- PANTALLA DEL FORMULARIO -->
         <section id="form-screen" class="screen">
             <form id="movie-form" class="card" novalidate>
                 <h2>Crea tu Película Mental</h2>
@@ -87,60 +92,97 @@
 
                 <div style="display:flex;gap:.8rem;flex-wrap:wrap;margin-top:1rem; justify-content: center;">
                     <button type="submit" id="create-btn" class="no-print">Crear mi Película Mental</button>
-                    <button type="button" id="download-json-btn" class="secondary no-print">Descargar JSON</button>
+                    <!-- <button type="button" id="download-json-btn" class="secondary no-print">Descargar JSON</button> -->
                 </div>
             </form>
         </section>
 
+        <!-- PANTALLA DE LA PELÍCULA CREADA (ESTRUCTURA MODIFICADA) -->
         <section id="movie-screen" class="screen">
+            <!-- El encabezado principal se mantiene igual y siempre visible -->
             <div class="movie-header card">
                 <h1 id="movie-title">Título</h1>
                 <p id="movie-description" class="muted">Descripción</p>
                 <div id="movie-audio-player" style="margin-top:1rem"></div>
+                
+                <!-- Controles para editar la música -->
+                <div class="edit-controls no-print">
+                    <button id="change-audio-btn" class="edit-button">Cambiar Música</button>
+                    <input type="file" id="audio-updater" accept="audio/*" class="hidden-input">
+                </div>
             </div>
+        
             
-            <p class="quote">Este es el comienzo de todo lo que siempre has querido.</p>
 
-            <div class="card">
-                <h3>Detalles</h3>
-                <ul class="info-list">
-                    <li><strong>Creador:</strong> <span id="movie-user-name" class="muted"></span></li>
-                    <li><strong>Edad:</strong> <span id="movie-user-age" class="muted"></span></li>
-                </ul>
-            </div>
+            <!-- Contenedor para los paneles -->
+            <div class="movie-panels">
+                <!-- Panel 1: Resumen (contiene Detalles y Metas) -->
+                <div id="panel-summary" class="movie-panel active">
+                    <div class="card">
+                        <h3>Detalles</h3>
+                        <ul class="info-list">
+                            <li><strong>Creador:</strong> <span id="movie-user-name" class="muted"></span></li>
+                            <li><strong>Edad:</strong> <span id="movie-user-age" class="muted"></span></li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h3>Metas a Futuro</h3>
+                        <ul class="info-list">
+                            <li><strong>A 2 años:</strong> <span id="movie-goal-2y" class="muted"></span></li>
+                            <li><strong>A 5 años:</strong> <span id="movie-goal-5y" class="muted"></span></li>
+                            <li><strong>A 10 años:</strong> <span id="movie-goal-10y" class="muted"></span></li>
+                        </ul>
+                    </div>
+                </div>
 
-            <div class="card">
-                <h3>Metas a Futuro</h3>
-                <ul class="info-list">
-                    <li><strong>A 2 años:</strong> <span id="movie-goal-2y" class="muted"></span></li>
-                    <li><strong>A 5 años:</strong> <span id="movie-goal-5y" class="muted"></span></li>
-                    <li><strong>A 10 años:</strong> <span id="movie-goal-10y" class="muted"></span></li>
-                </ul>
-            </div>
+                <!-- Panel 2: Galería -->
+                <div id="panel-gallery" class="movie-panel">
+                    <div class="card" id="gallery-panel-card">
+                        <h3>Galería de Sueños</h3>
+                        <div id="movie-image-gallery"></div>
+                        <!-- Controles para añadir imágenes -->
+                        <div class="edit-controls no-print">
+                            <button id="add-images-btn" class="edit-button">Añadir Imágenes</button>
+                            <input type="file" id="image-updater" accept="image/*" multiple class="hidden-input">
+                        </div>
+                    </div>
+                </div>
 
-            <div class="card" id="gallery-panel">
-                <h3>Galería</h3>
-                <div id="movie-image-gallery"></div>
-            </div>
+                <!-- Panel 3: Plan de Acción (Tareas) -->
+                <div id="panel-tasks" class="movie-panel">
+                    <div class="card" id="task-panel-card">
+                        <h3>Tareas para alcanzar tu meta</h3>
+                        <ul id="task-list"></ul>
+                        <form id="new-task-form" class="no-print" aria-label="Añadir tarea">
+                            <input id="new-task-input" type="text" placeholder="Añadir nueva tarea..." maxlength="180" required />
+                            <button type="submit">Añadir</button>
+                        </form>
 
-            <div class="card" id="task-panel">
-                <h3>Tareas para alcanzar tu meta</h3>
-                <ul id="task-list"></ul>
-                <form id="new-task-form" class="no-print" aria-label="Añadir tarea">
-                    <input id="new-task-input" type="text" placeholder="Añadir nueva tarea..." maxlength="180" required />
-                    <button type="submit">Añadir</button>
-                </form>
-
-                <div style="margin-top:1.5rem">
-                    <p id="progress-text" class="muted"></p>
-                    <div id="progress-bar-container"><div id="progress-bar"></div></div>
+                        <div style="margin-top:1.5rem">
+                            <p id="progress-text" class="muted"></p>
+                            <div id="progress-bar-container"><div id="progress-bar"></div></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Panel 4: Panel de Inspiración -->
+                <div id="panel-inspiration" class="movie-panel">
+                    <div class="card">
+                        <h3>Busca tu Inspiración</h3>
+                        <p class="muted" style="margin-bottom: 2rem;">A veces, solo necesitas un pequeño empujón. Presiona el botón para recibir una reflexión sobre el poder de tus sueños.</p>
+                        <button id="generate-reflection-btn">Generar Reflexión</button>
+                        <div id="reflection-box" class="reflection-box">
+                            <!-- La reflexión aparecerá aquí -->
+                        </div>
+                    </div>
                 </div>
             </div>
 
+            <!-- Controles inferiores -->
             <div class="controls-panel no-print">
                 <button id="export-pdf-btn" class="secondary">Exportar a PDF / Imprimir</button>
                 <button id="pelicula-mental">Reproduce mi película virtual</button>
-                <button id="download-all-json-btn">Descargar todo (JSON)</button>
+                <!-- <button id="download-all-json-btn">Descargar todo (JSON)</button> -->
                 <button id="delete-movie-btn" class="danger">Eliminar película mental</button>
             </div>
         </section>
@@ -150,13 +192,16 @@
         ¡Sigue adelante! Cada paso, por pequeño que sea, te acerca a la obra maestra que es tu futuro.
     </footer>
 
+    <!-- MODAL PARA IMAGEN AMPLIADA -->
     <div id="image-modal" class="modal" role="dialog" aria-modal="true" aria-hidden="true">
         <img id="modal-img" alt="Imagen ampliada" />
     </div>
 
+    <!-- CARRUSEL AUTOMÁTICO PARA PELÍCULA MENTAL -->
     <div id="carousel-overlay">
         <div class="carousel-container">
             <div id="carousel-slides-container">
+                <!-- Las diapositivas se insertarán aquí con JavaScript -->
             </div>
         </div>
         <button id="carousel-close" title="Cerrar">&times;</button>

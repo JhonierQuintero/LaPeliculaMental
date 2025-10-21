@@ -110,6 +110,7 @@ document.addEventListener('DOMContentLoaded', function () {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
+        // ---------- RENDERIZADO DE LA "PELÍCULA" (FUNCIÓN CORREGIDA) ----------
         function renderMovie(data) {
             if (!data) return;
             movieTitle.textContent = data.title || 'Sin título';
@@ -120,6 +121,7 @@ document.addEventListener('DOMContentLoaded', function () {
             movieGoal5.textContent = data.goals?.['5y'] || 'Sin definir';
             movieGoal10.textContent = data.goals?.['10y'] || 'Sin definir';
 
+            // audio
             movieAudioPlayer.innerHTML = '';
             if (data.audioDataUrl) {
                 try {
@@ -135,14 +137,15 @@ document.addEventListener('DOMContentLoaded', function () {
                     audio.setAttribute('aria-label', 'Reproductor de música de fondo');
                     movieAudioPlayer.appendChild(audio);
                     currentAudio = audio;
-                    audio.play().catch(() => {});
+                    audio.play().catch(() => { /* autoplay bloqueado */ });
                 } catch (e) {
                     console.warn('No se pudo preparar audio', e);
                 }
             }
 
+            // galería
             movieImageGallery.innerHTML = '';
-            if (Array.isArray(data.imageDataUrls) && data.imageDataUrls.length) {
+            if (data.imageDataUrls && data.imageDataUrls.length) {
                 data.imageDataUrls.forEach((url, i) => {
                     const img = document.createElement('img');
                     img.src = url;
@@ -152,13 +155,15 @@ document.addEventListener('DOMContentLoaded', function () {
                     img.addEventListener('keydown', (ev) => { if (ev.key === 'Enter') openImageModal(url); });
                     movieImageGallery.appendChild(img);
                 });
-                document.getElementById('gallery-panel').style.display = 'block';
+                // LA LÍNEA PROBLEMÁTICA HA SIDO ELIMINADA DE AQUÍ
             } else {
                 movieImageGallery.innerHTML = '<p class="muted">No hay imágenes añadidas.</p>';
-                document.getElementById('gallery-panel').style.display = 'none';
             }
 
+            // tareas
             renderTasks(data.tasks || []);
+
+            // mostrar pantalla película
             showScreen(movieScreen);
         }
 
@@ -326,35 +331,7 @@ document.addEventListener('DOMContentLoaded', function () {
             showScreen(welcomeScreen);
         });
 
-        function downloadDataAsJson(data, baseFilename) {
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.download = baseFilename.replace(/\s+/g, '_') + '.json';
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            URL.revokeObjectURL(url);
-            URL.revokeObjectURL(url);
-        }
-        downloadAllJsonBtn.addEventListener('click', () => {
-            const data = loadFromLocalStorage();
-            if (!data) { alert('No hay datos para descargar.'); return; }
-            downloadDataAsJson(data, data.title || 'pelicula-mental-completa');
-        });
-        downloadJsonBtn.addEventListener('click', () => {
-            const data = {
-                userName: document.getElementById('user-name').value || '', userAge: document.getElementById('user-age').value || '',
-                title: document.getElementById('form-title').value || '', description: document.getElementById('form-description').value || '',
-                goals: {
-                    '2y': document.getElementById('goal-2y').value || '', '5y': document.getElementById('goal-5y').value || '', '10y': document.getElementById('goal-10y').value || ''
-                },
-                audioDataUrl: (currentData && currentData.audioDataUrl) ? currentData.audioDataUrl : null,
-                imageDataUrls: (currentData && currentData.imageDataUrls) ? currentData.imageDataUrls : [],
-                tasks: (currentData && currentData.tasks) ? currentData.tasks : []
-            };
-            downloadDataAsJson(data, data.title || 'pelicula-mental-formulario');
-        });
+        
 
         // ---------- LÓGICA DEL CARRUSEL AUTOMÁTICO ----------
         function createTextSlide(title, content) {
@@ -478,4 +455,103 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
 
+        
+        const changeAudioBtn = document.getElementById('change-audio-btn');
+        const audioUpdater = document.getElementById('audio-updater');
+        const addImagesBtn = document.getElementById('add-images-btn');
+        const imageUpdater = document.getElementById('image-updater');
+        const generateReflectionBtn = document.getElementById('generate-reflection-btn');
+        const reflectionBox = document.getElementById('reflection-box');
+
+        /**
+         * Inicializa los botones para cambiar música y añadir imágenes después de crear la película.
+         */
+        function initializeEditableComponents() {
+            // Lógica para cambiar la música
+            changeAudioBtn.addEventListener('click', () => audioUpdater.click());
+            audioUpdater.addEventListener('change', async (event) => {
+                const file = event.target.files[0];
+                if (!file || !currentData) return;
+
+                if (file.size > MAX_FILE_BYTES) {
+                    alert(`El archivo de audio supera el límite de ${MAX_FILE_MB} MB.`);
+                    audioUpdater.value = '';
+                    return;
+                }
+                try {
+                    const dataUrl = await fileToDataUrl(file);
+                    currentData.audioDataUrl = dataUrl;
+                    saveToLocalStorage(currentData);
+                    renderMovie(currentData); // Volvemos a renderizar para que se actualice el reproductor.
+                    alert('¡Música actualizada con éxito!');
+                } catch (e) {
+                    alert('Hubo un error al procesar el nuevo audio.');
+                }
+            });
+
+            // Lógica para añadir más imágenes
+            addImagesBtn.addEventListener('click', () => imageUpdater.click());
+            imageUpdater.addEventListener('change', async (event) => {
+                const files = Array.from(event.target.files);
+                if (!files.length || !currentData) return;
+
+                // Validar tamaño de los nuevos archivos
+                for (const f of files) {
+                    if (f.size > MAX_FILE_BYTES) {
+                        alert(`La imagen "${f.name}" supera el límite de ${MAX_FILE_MB}MB y no se añadirá.`);
+                        imageUpdater.value = '';
+                        return;
+                    }
+                }
+                
+                try {
+                    const dataUrls = await Promise.all(files.map(fileToDataUrl));
+                    currentData.imageDataUrls = (currentData.imageDataUrls || []).concat(dataUrls);
+                    saveToLocalStorage(currentData);
+                    renderMovie(currentData); // Re-renderizar para mostrar la galería actualizada.
+                    alert(`¡Se añadieron ${files.length} imagen(es) nuevas!`);
+                } catch(e) {
+                     alert('Hubo un error al procesar las nuevas imágenes.');
+                } finally {
+                    imageUpdater.value = ''; // Limpiar el input para poder subir los mismos archivos de nuevo
+                }
+            });
+        }
+        
+        /**
+         * Inicializa el panel de inspiración con las reflexiones.
+         */
+        function initializeInspirationPanel() {
+            const reflections = [
+                "Tu película mental no es solo un sueño; es el guion de tu futuro. Cada día, tienes la oportunidad de filmar una nueva escena. ¡Acción!",
+                "La distancia entre tus sueños y la realidad se llama acción. No esperes el momento perfecto, toma el momento y hazlo perfecto.",
+                "Recuerda que los grandes robles fueron una vez pequeñas bellotas. Tu gran sueño se construye con las pequeñas acciones que realizas hoy.",
+                "No dejes que el ruido de las opiniones ajenas ahogue tu voz interior. Tu visión es única y el mundo está esperando ver tu película. ¡Créetelo!",
+                "El universo no conspira a favor de los que solo desean, sino de los que actúan. Tu película mental es el mapa; tus acciones son el combustible. ¡Avanza!"
+            ];
+
+            let lastReflectionIndex = -1;
+
+            generateReflectionBtn.addEventListener('click', () => {
+                let randomIndex;
+                // Bucle simple para evitar mostrar la misma reflexión dos veces seguidas
+                do {
+                    randomIndex = Math.floor(Math.random() * reflections.length);
+                } while (reflections.length > 1 && randomIndex === lastReflectionIndex);
+                
+                lastReflectionIndex = randomIndex;
+                const selectedReflection = reflections[randomIndex];
+
+                // Añadir animación de entrada
+                reflectionBox.classList.remove('animate_animated', 'animate_fadeIn');
+                void reflectionBox.offsetWidth; // Forzar reflow
+
+                reflectionBox.textContent = selectedReflection;
+                reflectionBox.classList.add('animate_animated', 'animate_fadeIn');
+            });
+        }
+
+        // --- LLAMADAS A LAS NUEVAS FUNCIONES DE INICIALIZACIÓN ---
+        initializeEditableComponents();
+        initializeInspirationPanel();
     })();
