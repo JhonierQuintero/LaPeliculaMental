@@ -677,7 +677,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-// REEMPLAZA LA FUNCIÓN ANTIGUA COMPLETA CON ESTA VERSIÓN FINAL Y MÓVIL-COMPATIBLE
 function initializeVisionCardExporter() {
     const exportBtn = document.getElementById('export-vision-card-btn');
     if (!exportBtn) return;
