@@ -677,9 +677,15 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+// REEMPLAZA LA FUNCIÓN ANTIGUA COMPLETA CON ESTA VERSIÓN FINAL Y MÓVIL-COMPATIBLE
 function initializeVisionCardExporter() {
     const exportBtn = document.getElementById('export-vision-card-btn');
     if (!exportBtn) return;
+
+    // --- NUEVO: Función para detectar si es un dispositivo móvil ---
+    function isMobileDevice() {
+        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    }
 
     exportBtn.addEventListener('click', () => {
         if (!currentData) {
@@ -689,13 +695,13 @@ function initializeVisionCardExporter() {
 
         const template = document.getElementById('vision-card-template');
         const originalButtonText = exportBtn.textContent;
+        const imagesContainer = document.getElementById('card-images');
 
-        // Preparar la plantilla y dar feedback ---
+        // --- PASO 1: Preparar la plantilla y dar feedback ---
         exportBtn.disabled = true;
         exportBtn.textContent = 'Generando...';
 
-        const imageToExport = currentData.imageDataUrls[0]; // Usamos la primera imagen como fondo
-
+        const imageToExport = currentData.imageDataUrls[0];
         if (!imageToExport) {
             alert("Añade al menos una imagen a tu película para generar una tarjeta.");
             exportBtn.disabled = false;
@@ -703,29 +709,21 @@ function initializeVisionCardExporter() {
             return;
         }
 
-        // Construimos la nueva estructura de la tarjeta dinámicamente
         template.innerHTML = `
             <img id="card-bg-image" />
             <div id="card-overlay"></div>
             <div id="card-content">
-                <header class="card-header">
-                    <h2 id="card-header-title"></h2>
-                </header>
-                <main class="card-main">
-                    <p id="card-main-goal"></p>
-                </main>
-                <footer class="card-footer">
-                    <span class="creator"></span> | <span class="app-name">Generado con Mi Película Mental</span>
-                </footer>
+                <header class="card-header"><h2 id="card-header-title"></h2></header>
+                <main class="card-main"><p id="card-main-goal"></p></main>
+                <footer class="card-footer"><span class="creator"></span> | <span class="app-name">Generado con Mi Película Mental</span></footer>
             </div>
         `;
 
-        // Rellena el contenido
         document.querySelector('#card-header-title').textContent = currentData.title || "Mi Gran Sueño";
         document.querySelector('.creator').textContent = `Creado por: ${currentData.userName || "Anónimo"}`;
         document.querySelector('#card-main-goal').textContent = `${currentData.goals['5y'] || currentData.description || 'El futuro es brillante.'}`;
 
-        //Cargar la imagen de fondo de forma segura ---
+        // --- PASO 2: Cargar la imagen de fondo ---
         const backgroundImageElement = document.querySelector('#card-bg-image');
         const promise = new Promise((resolve, reject) => {
             backgroundImageElement.crossOrigin = "anonymous";
@@ -734,25 +732,37 @@ function initializeVisionCardExporter() {
             backgroundImageElement.src = imageToExport;
         });
 
-        // Ejecutar html2canvas cuando la imagen esté lista ---
+        // --- PASO 3: Ejecutar html2canvas y aplicar la estrategia correcta ---
         promise.then(() => {
-            setTimeout(() => { // Pequeña pausa para asegurar el renderizado
-                html2canvas(template, {
-                    useCORS: true,
-                    scale: 2 // Genera una imagen con el doble de resolución (más nítida)
-                }).then(canvas => {
+            setTimeout(() => {
+                html2canvas(template, { useCORS: true, scale: 2 }).then(canvas => {
                     const imageUrl = canvas.toDataURL('image/png');
-                    const link = document.createElement('a');
-                    link.href = imageUrl;
-                    link.download = 'mi-tarjeta-de-vision.png';
-                    link.click();
+
+                    // ===== LA SOLUCIÓN ESTÁ AQUÍ =====
+                    if (isMobileDevice()) {
+                        // *Estrategia para Móviles:*
+                        // 1. Abrimos una nueva pestaña.
+                        const newTab = window.open();
+                        // 2. Escribimos en esa pestaña una etiqueta <img> con la imagen generada.
+                        newTab.document.write(`<body style="margin:0; background:black;"><img src="${imageUrl}" style="width:100%; height:auto;" /></body>`);
+                        // 3. El usuario ahora puede guardar la imagen de forma nativa.
+                        
+                    } else {
+                        // *Estrategia para Escritorio:*
+                        // Creamos el enlace y simulamos el clic para descargar.
+                        const link = document.createElement('a');
+                        link.href = imageUrl;
+                        link.download = 'mi-tarjeta-de-vision.png';
+                        link.click();
+                    }
+                    
                 }).catch(err => {
                     console.error("Error final en html2canvas:", err);
                     alert("Hubo un error al generar la imagen. Inténtalo de nuevo.");
                 }).finally(() => {
                     exportBtn.disabled = false;
                     exportBtn.textContent = originalButtonText;
-                    template.innerHTML = ''; // Limpiamos la plantilla después de usarla
+                    template.innerHTML = '';
                 });
             }, 100);
         }).catch(err => {
