@@ -22,6 +22,7 @@
         </select>
     </div>
 
+    
     <main class="container" id="app">
         <!-- PANTALLA DE BIENVENIDA -->
         <section id="welcome-screen" class="screen active">
@@ -79,33 +80,33 @@
                 </div>
 
                 <div class="card" style="padding:1.5rem;margin-top:1rem; animation: none;">
-    <h3>Recursos Multimedia</h3>
-    <!-- SECCIÓN DE MÚSICA MEJORADA -->
-    <div class="form-group">
-        <label for="audio-upload">Sube tu Música de Fondo (máx 5 MB)</label>
-        <input id="audio-upload" type="file" accept="audio/*" />
-        
-        <h4 class="preset-title">O elige una opción predeterminada:</h4>
-        <div class="preset-audio-options">
-            <button type="button" class="preset-audio-btn" data-src="./assets/musica-default/sombras-del-pasado.mp3">Inspiración</button>
-            <button type="button" class="preset-audio-btn" data-src="./assets/musica-default/cascade.mp3">Calma</button>
-            <button type="button" class="preset-audio-btn" data-src="./assets/musica-default/happy-day.mp3">Energía</button>
-        </div>
-    </div>
+                <h3>Recursos Multimedia</h3>
+                <!-- SECCIÓN DE MÚSICA MEJORADA -->
+                <div class="form-group">
+                    <label for="audio-upload">Sube tu Música de Fondo (máx 5 MB)</label>
+                    <input id="audio-upload" type="file" accept="audio/*" />
+                    
+                    <h4 class="preset-title">O elige una opción predeterminada:</h4>
+                    <div class="preset-audio-options">
+                        <button type="button" class="preset-audio-btn" data-src="./assets/musica-default/sombras-del-pasado.mp3">Inspiración</button>
+                        <button type="button" class="preset-audio-btn" data-src="./assets/musica-default/cascade.mp3">Calma</button>
+                        <button type="button" class="preset-audio-btn" data-src="./assets/musica-default/happy-day.mp3">Energía</button>
+                    </div>
+                </div>
     
-    <!-- SECCIÓN DE IMÁGENES MEJORADA -->
-    <div class="form-group">
-        <label for="image-upload">Sube tus Imágenes (máx 5 MB c/u)</label>
-        <input id="image-upload" type="file" accept="image/*" multiple />
+                    <!-- SECCIÓN DE IMÁGENES MEJORADA -->
+                    <div class="form-group">
+                        <label for="image-upload">Sube tus Imágenes (máx 5 MB c/u)</label>
+                        <input id="image-upload" type="file" accept="image/*" multiple />
 
-        <h4 class="preset-title">O elige de nuestra galería:</h4>
-        <div class="preset-image-gallery" id="preset-image-gallery">
-            <!-- Las imágenes predeterminadas se insertarán aquí con JavaScript -->
-        </div>
+                        <h4 class="preset-title">O elige de nuestra galería:</h4>
+                        <div class="preset-image-gallery" id="preset-image-gallery">
+                            <!-- Las imágenes predeterminadas se insertarán aquí con JavaScript -->
+                        </div>
 
-        <div class="image-previews" id="image-preview-container" aria-live="polite"></div>
-    </div>
-</div>
+                        <div class="image-previews" id="image-preview-container" aria-live="polite"></div>
+                    </div>
+                </div>
 
                 <div style="display:flex;gap:.8rem;flex-wrap:wrap;margin-top:1rem; justify-content: center;">
                     <button type="submit" id="create-btn" class="no-print">Crear mi Película Mental</button>

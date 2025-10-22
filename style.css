@@ -624,9 +624,9 @@
     font-style: italic;
 }
 
-/* --- ESTILOS CORREGIDOS PARA TAREAS MEJORADAS Y SU FORMULARIO --- */
 
-/* 1. Estilos para la lista de tareas (sin cambios, pero lo incluyo por contexto) */
+
+/* 1. Estilos para la lista de tareas */
 #task-list li {
     flex-direction: column;
     align-items: flex-start;
@@ -697,6 +697,31 @@
 
 .task-main {
     gap: 1rem; 
+}
+
+html, body {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* ya lo tenías, pero asegurar */
+}
+
+main.container {
+    flex: 1 0 auto;
+}
+
+.footer-quote {
+    margin-top: 0;
+    padding: 1.5rem 1.5rem; 
+}
+
+@media (max-width: 768px) {
+    .footer-quote {
+        padding: 1rem 1rem;
+    }
 }
 
 /* En pantallas pequeñas, hacemos que la fecha y las notas se pongan una encima de la otra */
